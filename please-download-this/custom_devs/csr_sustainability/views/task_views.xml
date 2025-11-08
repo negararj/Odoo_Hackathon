@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Form View for Sustainability Task -->
+    <record id="view_task_sustainability_form" model="ir.ui.view">
+        <field name="name">project.task.form.sustainability</field>
+        <field name="model">project.task</field>
+        <field name="inherit_id" ref="project.view_task_form2"/>
+        <field name="arch" type="xml">
+            <!-- Add sustainability fields -->
+            <xpath expr="//field[@name='name']" position="after">
+                <group>
+                    <group>
+                        <field name="sustainability_category"/>
+                        <field name="sustainability_points"/>
+                        <field name="difficulty"/>
+                    </group>
+                </group>
+            </xpath>
+        </field>
+    </record>
+
+    <!-- Tree/List View for Sustainability Task -->
+    <record id="view_task_sustainability_tree" model="ir.ui.view">
+        <field name="name">project.task.tree.sustainability</field>
+        <field name="model">project.task</field>
+        <field name="inherit_id" ref="project.view_task_tree2"/>
+        <field name="arch" type="xml">
+            <!-- Add sustainability columns to the tree view -->
+            <xpath expr="//field[@name='name']" position="after">
+                <field name="sustainability_category"/>
+                <field name="sustainability_points"/>
+                <field name="difficulty"/>
+            </xpath>
+        </field>
+    </record>
+
+    <!-- Kanban View for Sustainability Task - Removed due to complex structure -->
+    <!-- Kanban view inheritance can be added later if needed -->
+</odoo>
+

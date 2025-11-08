@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- NGO Portal User Group -->
+    <record id="group_ngo_portal" model="res.groups">
+        <field name="name">NGO Portal User</field>
+        <field name="comment">NGO users can create and manage sustainability projects through the portal</field>
+        <field name="implied_ids" eval="[(4, ref('base.group_portal'))]"/>
+    </record>
+</odoo>
+

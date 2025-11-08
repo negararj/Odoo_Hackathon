@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Search View for Sustainability Projects -->
+    <record id="view_project_sustainability_search" model="ir.ui.view">
+        <field name="name">project.project.search.sustainability</field>
+        <field name="model">project.project</field>
+        <field name="inherit_id" ref="project.view_project_project_filter"/>
+        <field name="arch" type="xml">
+            <!-- Add search fields -->
+            <field name="name" position="after">
+                <field name="is_sustainability" string="Sustainability"/>
+                <field name="ngo_id" string="NGO"/>
+            </field>
+            
+            <!-- Add filter for sustainability projects after the Templates filter -->
+            <filter name="templates" position="after">
+                <separator/>
+                <filter string="Sustainability Projects" name="sustainability_projects" 
+                        domain="[('is_sustainability', '=', True)]"
+                        help="Show only projects from the Sustainability app"/>
+            </filter>
+        </field>
+    </record>
+</odoo>
+

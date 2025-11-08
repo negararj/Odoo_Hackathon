@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Form View for Sustainability Project -->
+    <record id="view_project_sustainability_form" model="ir.ui.view">
+        <field name="name">project.project.form.sustainability</field>
+        <field name="model">project.project</field>
+        <field name="inherit_id" ref="project.edit_project"/>
+        <field name="arch" type="xml">
+            <!-- Add sustainability fields -->
+            <xpath expr="//field[@name='name']" position="after">
+                <field name="is_sustainability"/>
+                <field name="ngo_id" groups="csr_sustainability.group_ngo_portal"/>
+            </xpath>
+        </field>
+    </record>
+
+    <!-- List View for Sustainability Project -->
+    <record id="view_project_sustainability_tree" model="ir.ui.view">
+        <field name="name">project.project.tree.sustainability</field>
+        <field name="model">project.project</field>
+        <field name="inherit_id" ref="project.view_project"/>
+        <field name="arch" type="xml">
+            <!-- Add sustainability columns -->
+            <xpath expr="//field[@name='name']" position="after">
+                <field name="is_sustainability"/>
+                <field name="ngo_id"/>
+            </xpath>
+        </field>
+    </record>
+</odoo>

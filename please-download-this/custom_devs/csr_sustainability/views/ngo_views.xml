@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Form View for NGO -->
+    <record id="view_ngo_form" model="ir.ui.view">
+        <field name="name">csr.ngo.form</field>
+        <field name="model">csr.ngo</field>
+        <field name="arch" type="xml">
+            <form string="NGO">
+                <header>
+                    <button name="%(csr_sustainability.action_view_sustainability_projects)d" 
+                            type="action" 
+                            string="Projects" 
+                            class="oe_highlight"
+                            context="{'default_ngo_id': id, 'search_default_ngo_id': id}"/>
+                    <field name="active" widget="boolean_toggle"/>
+                </header>
+                <sheet>
+                    <div class="oe_button_box" name="button_box">
+                        <button name="%(csr_sustainability.action_view_sustainability_projects)d" 
+                                type="action" 
+                                class="oe_stat_button" 
+                                icon="fa-tasks"
+                                context="{'default_ngo_id': id, 'search_default_ngo_id': id}">
+                            <field name="project_count" widget="statinfo" string="Projects"/>
+                        </button>
+                    </div>
+                    <group>
+                        <field name="name"/>
+                        <field name="user_id" widget="many2one_avatar_user" 
+                               help="Select a user account for this NGO to log in and create projects. The user must be assigned to the 'NGO Portal User' group."/>
+                    </group>
+                    <notebook>
+                        <page string="Projects">
+                            <field name="project_ids" readonly="1" context="{'default_ngo_id': id, 'default_is_sustainability': True}"/>
+                        </page>
+                    </notebook>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <!-- List View for NGO -->
+    <record id="view_ngo_tree" model="ir.ui.view">
+        <field name="name">csr.ngo.tree</field>
+        <field name="model">csr.ngo</field>
+        <field name="arch" type="xml">
+            <list string="NGOs">
+                <field name="name"/>
+                <field name="user_id"/>
+                <field name="project_count"/>
+                <field name="active" invisible="1"/>
+            </list>
+        </field>
+    </record>
+
+    <!-- Search View for NGO -->
+    <record id="view_ngo_search" model="ir.ui.view">
+        <field name="name">csr.ngo.search</field>
+        <field name="model">csr.ngo</field>
+        <field name="arch" type="xml">
+            <search string="Search NGOs">
+                <field name="name"/>
+                <field name="user_id"/>
+                <filter string="Active" name="active" domain="[('active', '=', True)]"/>
+                <filter string="Inactive" name="inactive" domain="[('active', '=', False)]"/>
+            </search>
+        </field>
+    </record>
+
+    <!-- Action for NGOs -->
+    <record id="action_view_ngos" model="ir.actions.act_window">
+        <field name="name">NGOs</field>
+        <field name="res_model">csr.ngo</field>
+        <field name="view_mode">list,form</field>
+        <field name="domain">[]</field>
+        <field name="context">{}</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                Create a new NGO
+            </p>
+            <p>
+                Manage Non-Governmental Organizations and their sustainability projects.
+            </p>
+        </field>
+    </record>
+
+    <!-- Menu Item for NGOs -->
+    <menuitem id="menu_csr_ngos"
+              name="NGOs"
+              parent="menu_csr_root"
+              action="action_view_ngos"
+              sequence="40"/>
+</odoo>
+

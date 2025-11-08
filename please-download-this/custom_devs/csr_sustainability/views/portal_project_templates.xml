@@ -1,0 +1,272 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <template id="portal_my_home_menu_sustainability" name="Portal layout : sustainability menu entries" inherit_id="portal.portal_breadcrumbs" priority="20">
+        <xpath expr="//ol[hasclass('o_portal_submenu')]" position="inside">
+            <li id="portal_breadcrumbs_sustainability" t-if="page_name == 'project' or project" t-attf-class="breadcrumb-item #{'active ' if not project else ''}">
+                <a t-if="project" t-attf-href="/my/projects?{{ keep_query() }}">My Projects</a>
+                <t t-else="">My Projects</t>
+            </li>
+            <li t-if="project" class="breadcrumb-item active">
+                <span t-out="project.name"/>
+            </li>
+        </xpath>
+    </template>
+
+    <template id="portal_my_home_sustainability" name="Sustainability Projects" customize_show="True" inherit_id="portal.portal_my_home" priority="20">
+        <xpath expr="//div[hasclass('o_portal_docs')]" position="before" groups="csr_sustainability.group_ngo_portal">
+            <t t-set="portal_client_category_enable" t-value="True"/>
+        </xpath>
+        <xpath expr="//div[@id='portal_client_category']" position="inside" groups="csr_sustainability.group_ngo_portal">
+            <t t-call="portal.portal_docs_entry">
+                <t t-set="icon" t-value="'/web/static/img/folder.svg'"/>
+                <t t-set="title">Your Sustainability Projects</t>
+                <t t-set="url" t-value="'/my/projects'"/>
+                <t t-set="text">Create and manage your sustainability projects</t>
+                <t t-set="placeholder_count" t-value="'project_count'"/>
+                <t t-set="show_count" t-value="True"/>
+            </t>
+        </xpath>
+    </template>
+
+    <template id="portal_my_projects" name="My Sustainability Projects">
+        <t t-call="portal.portal_layout">
+            <t t-set="breadcrumbs_searchbar" t-value="True"/>
+
+            <t t-call="portal.portal_searchbar">
+                <t t-set="title">My Sustainability Projects</t>
+            </t>
+            <div t-if="not projects" class="alert alert-warning" role="alert">
+                There are currently no sustainability projects for your account.
+                <a t-attf-href="/my/projects/new" class="btn btn-primary mt-2">Create Your First Project</a>
+            </div>
+            <t t-if="projects" t-call="portal.portal_table">
+                <thead>
+                    <tr class="active">
+                        <th>Project Name</th>
+                        <th class="text-end">Start Date</th>
+                        <th class="text-end">End Date</th>
+                        <th class="text-center">Status</th>
+                        <th class="text-end">Tasks</th>
+                    </tr>
+                </thead>
+                <t t-foreach="projects" t-as="project">
+                    <tr>
+                        <td><a t-att-href="project.get_portal_url()"><t t-out="project.name"/></a></td>
+                        <td class="text-end"><span t-field="project.date_start" t-options="{'widget': 'date'}"/></td>
+                        <td class="text-end"><span t-field="project.date" t-options="{'widget': 'date'}"/></td>
+                        <td class="text-center">
+                            <span t-if="project.active" class="badge rounded-pill text-bg-success">
+                                <i class="fa fa-fw fa-check"/> Active</span>
+                            <span t-else="" class="badge rounded-pill text-bg-secondary">
+                                <i class="fa fa-fw fa-archive"/> Archived</span>
+                        </td>
+                        <td class="text-end">
+                            <span t-out="project.task_count"/>
+                        </td>
+                    </tr>
+                </t>
+            </t>
+            <div class="mt-3">
+                <a t-attf-href="/my/projects/new" class="btn btn-primary">
+                    <i class="fa fa-plus"/> Create New Project
+                </a>
+            </div>
+        </t>
+    </template>
+
+    <!-- Complete page of the project -->
+    <template id="project_portal_template" name="Sustainability Project" inherit_id="portal.portal_sidebar" primary="True">
+        <xpath expr="//div[hasclass('o_portal_sidebar')]" position="inside">
+            <div class="row o_portal_project_sidebar" t-att-data-project-id="project.id">
+                <!-- Sidebar -->
+                <t t-call="portal.portal_record_sidebar">
+                    <t t-set="classes" t-value="'col-lg-4 col-xxl-3 d-print-none'"/>
+                    <t t-set="title">
+                        <h2 t-field="project.name" class="mb-0 text-break"/>
+                    </t>
+                    <t t-set="entries">
+                        <div class="d-flex flex-column gap-4 mt-3">
+                            <div class="d-flex flex-column gap-2" id="project_sidebar_info">
+                                <div t-if="project.date_start or project.date">
+                                    <h6><small class="text-muted">Project Period</small></h6>
+                                    <div t-if="project.date_start">
+                                        <small>Start: <span t-field="project.date_start" t-options="{'widget': 'date'}"/></small>
+                                    </div>
+                                    <div t-if="project.date">
+                                        <small>End: <span t-field="project.date" t-options="{'widget': 'date'}"/></small>
+                                    </div>
+                                </div>
+                                
+                                <div t-if="project.task_count > 0">
+                                    <h6><small class="text-muted">Tasks</small></h6>
+                                    <div>
+                                        <span class="badge rounded-pill text-bg-info">
+                                            <t t-out="project.task_count"/> Task(s)
+                                        </span>
+                                    </div>
+                                </div>
+
+                                <div t-if="project.ngo_id">
+                                    <h6><small class="text-muted">NGO</small></h6>
+                                    <div t-field="project.ngo_id" t-options="{'widget': 'contact', 'fields': ['name']}"/>
+                                </div>
+                            </div>
+
+                            <div class="navspy flex-grow-1 ps-0" t-ignore="true" role="complementary">
+                                <ul class="nav flex-column bs-sidenav"></ul>
+                            </div>
+                        </div>
+                    </t>
+                </t>
+
+                <!-- Page content -->
+                <div id="project_content" class="col-12 col-lg-8 col-xxl-9 mt-5 mt-lg-0">
+                    <!-- main content -->
+                    <div t-attf-class="#{'pb-5' if report_type == 'html' else ''}" id="portal_project_content">
+                        <div><t t-call="csr_sustainability.project_portal_content"/></div>
+                    </div>
+
+                    <!-- bottom actions -->
+                    <div class="d-flex justify-content-center gap-1 d-print-none mt-4" name="project_actions">
+                        <div class="col-sm-auto mt8">
+                            <a role="button" class="btn btn-primary" t-attf-href="/my/projects/{{project.id}}/edit">
+                                <i class="fa fa-edit"/> Edit Project
+                            </a>
+                        </div>
+                        <div class="col-sm-auto mt8">
+                            <a role="button" class="btn btn-light" href="#discussion">
+                                <i class="fa fa-comment"/> Feedback
+                            </a>
+                        </div>
+                    </div>
+
+                    <!-- chatter -->
+                    <hr id="discussion"/>
+                    <div id="project_communication">
+                        <h3>Communication history</h3>
+                        <t t-call="portal.message_thread"/>
+                    </div>
+                </div><!-- // #project_content -->
+            </div>
+        </xpath>
+    </template>
+
+    <!--
+    Project content : intro, information, tasks, description
+    This template should contain all the printable element of the project.
+    -->
+    <template id="project_portal_content" name="Project Portal Content">
+        <!-- Intro -->
+        <div id="introduction" t-attf-class="#{'border-bottom-0 pt-0 pb-3' if report_type == 'html' else ''}">
+            <div class="d-flex gap-2" id="intro_row">
+                <h2>
+                    <em t-out="project.name"/>
+                </h2>
+            </div>
+        </div>
+        <div id="content">
+            <div id="informations" class="row">
+                <!-- Project Information -->
+                <div id="project_info" class="col-12 col-lg-6 mb-4">
+                    <span id="project_info_title">
+                        <h5 class="mb-1">Project Information</h5>
+                        <hr class="mt-1 mb-2"/>
+                    </span>
+                    <table class="table table-borderless table-sm">
+                        <tbody style="white-space:nowrap" id="project_info_table">
+                            <tr t-if="project.date_start">
+                                <th class="ps-0 pb-0">Start Date:</th>
+                                <td class="w-100 pb-0 text-wrap">
+                                    <span t-field="project.date_start" t-options='{"widget": "date"}'/>
+                                </td>
+                            </tr>
+                            <tr t-if="project.date">
+                                <th class="ps-0 pb-0">End Date:</th>
+                                <td class="w-100 pb-0 text-wrap">
+                                    <span t-field="project.date" t-options='{"widget": "date"}'/>
+                                </td>
+                            </tr>
+                            <tr t-if="project.ngo_id">
+                                <th class="ps-0 pb-0">NGO:</th>
+                                <td class="w-100 pb-0 text-wrap">
+                                    <span t-field="project.ngo_id.name"/>
+                                </td>
+                            </tr>
+                            <tr t-if="project.task_count > 0">
+                                <th class="ps-0 pb-0">Total Tasks:</th>
+                                <td class="w-100 pb-0 text-wrap">
+                                    <span t-out="project.task_count"/>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Status Information -->
+                <div id="status_info" class="col-12 col-lg-6 mb-4">
+                    <h5 class="mb-1">Status</h5>
+                    <hr class="mt-1 mb-2"/>
+                    <div>
+                        <span t-if="project.active" class="badge rounded-pill text-bg-success">
+                            <i class="fa fa-fw fa-check"/> Active
+                        </span>
+                        <span t-else="" class="badge rounded-pill text-bg-secondary">
+                            <i class="fa fa-fw fa-archive"/> Archived
+                        </span>
+                    </div>
+                </div>
+            </div>
+
+            <section id="description" style="page-break-inside: auto;">
+                <div t-if="project.description" class="mb-4">
+                    <h4>Description</h4>
+                    <hr class="mt-0 mb-2"/>
+                    <div t-field="project.description" t-options="{'widget': 'text'}"/>
+                </div>
+            </section>
+
+            <section id="tasks" t-if="project.task_ids" style="page-break-inside: auto;">
+                <h4>Tasks</h4>
+                <hr class="mt-0 mb-2"/>
+                <div class="table-responsive">
+                    <table class="table table-sm">
+                        <thead>
+                            <tr>
+                                <th class="text-start">Task Name</th>
+                                <th class="text-center">Status</th>
+                                <th class="text-end">Points</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <t t-foreach="project.task_ids.filtered(lambda t: t.active)" t-as="task">
+                                <tr>
+                                    <td>
+                                        <span t-field="task.name"/>
+                                    </td>
+                                    <td class="text-center">
+                                        <span t-if="task.state == '01_in_progress'" class="badge rounded-pill text-bg-primary">
+                                            In Progress
+                                        </span>
+                                        <span t-elif="task.state == '03_approved'" class="badge rounded-pill text-bg-success">
+                                            Approved
+                                        </span>
+                                        <span t-else="" class="badge rounded-pill text-bg-secondary">
+                                            <t t-out="task.state"/>
+                                        </span>
+                                    </td>
+                                    <td class="text-end">
+                                        <span t-if="task.sustainability_points" t-out="task.sustainability_points"/>
+                                        <span t-else="">-</span>
+                                    </td>
+                                </tr>
+                            </t>
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+        </div>
+    </template>
+
+</odoo>
+

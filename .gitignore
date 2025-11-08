@@ -1,0 +1,49 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+*.egg-info/
+dist/
+build/
+
+# Virtual Environments
+venv/
+env/
+ENV/
+odoo-venv/
+*.venv
+
+# Odoo specific
+*.log
+*.pot
+*.pyc
+*.pyo
+*.swp
+*.swo
+*~
+
+# IDE
+.vscode/
+.idea/
+*.sublime-project
+*.sublime-workspace
+
+# OS
+.DS_Store
+Thumbs.db
+__MACOSX/
+
+# Docker
+docker-compose.override.yml
+*.db
+*.sqlite
+
+# Odoo installation (large, usually not committed)
+# Uncomment if you want to exclude the entire odoo directory
+# please-download-this/odoo/
+
+# Keep custom modules
+!please-download-this/custom_devs/
+

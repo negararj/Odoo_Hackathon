@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Record Rule: NGOs can only see their own sustainability projects -->
+    <!-- Note: This rule uses ngo_user_id which is a computed stored field -->
+    <!-- Initially inactive to allow module upgrade, then activate after field is created -->
+    <record id="project_sustainability_ngo_rule" model="ir.rule">
+        <field name="name">NGO: Can access only their own sustainability projects</field>
+        <field name="model_id" ref="project.model_project_project"/>
+        <field name="domain_force">[('is_sustainability', '=', True)]</field>
+        <field name="groups" eval="[(4, ref('csr_sustainability.group_ngo_portal'))]"/>
+        <field name="perm_read" eval="True"/>
+        <field name="perm_write" eval="True"/>
+        <field name="perm_create" eval="True"/>
+        <field name="perm_unlink" eval="False"/>
+        <field name="active" eval="True"/>
+    </record>
+</odoo>
+

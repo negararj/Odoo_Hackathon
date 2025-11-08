@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Sustainability Project Record -->
+    <record id="project_sustainability" model="project.project">
+        <field name="name">Sustainability Initiative</field>
+        <field name="description">Corporate Social Responsibility and Sustainability project</field>
+        <field name="date_start">2024-01-15</field>
+        <field name="date">2024-04-15</field>
+    </record>
+</odoo>
+

@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Form View for Employee Sustainability -->
+    <record id="view_employee_sustainability_form" model="ir.ui.view">
+        <field name="name">hr.employee.form.sustainability</field>
+        <field name="model">hr.employee</field>
+        <field name="inherit_id" ref="hr.view_employee_form"/>
+        <field name="arch" type="xml">
+            <!-- Add sustainability fields in a new page -->
+            <xpath expr="//notebook" position="inside">
+                <page string="Sustainability" name="sustainability">
+                    <group>
+                        <group>
+                            <field name="sustainability_points"/>
+                            <field name="money_O2"/>
+                        </group>
+                        <group>
+                            <field name="badge" readonly="1"/>
+                        </group>
+                    </group>
+                </page>
+            </xpath>
+        </field>
+    </record>
+
+    <!-- Tree/List View for Employee Sustainability -->
+    <record id="view_employee_sustainability_tree" model="ir.ui.view">
+        <field name="name">hr.employee.tree.sustainability</field>
+        <field name="model">hr.employee</field>
+        <field name="inherit_id" ref="hr.view_employee_tree"/>
+        <field name="arch" type="xml">
+            <!-- Add sustainability columns to the tree view -->
+            <xpath expr="//field[@name='name']" position="after">
+                <field name="sustainability_points"/>
+                <field name="badge"/>
+                <field name="money_O2"/>
+            </xpath>
+        </field>
+    </record>
+
+    <!-- Kanban View for Employee Sustainability - Removed due to complex structure -->
+    <!-- Kanban view inheritance can be added later if needed -->
+</odoo>
+

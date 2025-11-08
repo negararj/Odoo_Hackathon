@@ -1,0 +1,5 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_project_ngo,project.project.ngo,project.model_project_project,csr_sustainability.group_ngo_portal,1,1,1,0
+access_task_ngo,project.task.ngo,project.model_project_task,csr_sustainability.group_ngo_portal,1,1,1,0
+access_ngo_user,csr.ngo.user,model_csr_ngo,base.group_user,1,1,1,1
+access_ngo_portal,csr.ngo.portal,model_csr_ngo,csr_sustainability.group_ngo_portal,1,0,0,0

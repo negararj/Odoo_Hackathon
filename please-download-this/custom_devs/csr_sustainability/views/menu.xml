@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Main Menu Root for CSR and Sustainability -->
+    <menuitem id="menu_csr_root"
+              name="CSR &amp; Sustainability"
+              sequence="100"/>
+
+    <!-- Sustainability Projects Action -->
+    <record id="action_view_sustainability_projects" model="ir.actions.act_window">
+        <field name="name">Sustainability Projects</field>
+        <field name="res_model">project.project</field>
+        <field name="view_mode">kanban,list,form</field>
+        <field name="domain">[('is_sustainability', '=', True)]</field>
+        <field name="context">{'search_default_sustainability_projects': 1}</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                Create a new Sustainability Project
+            </p>
+            <p>
+                Track and manage your sustainability initiatives through projects.
+            </p>
+        </field>
+    </record>
+
+    <!-- Sustainability Projects Menu -->
+    <menuitem id="menu_csr_projects"
+              name="Projects"
+              parent="menu_csr_root"
+              action="action_view_sustainability_projects"
+              sequence="10"/>
+
+    <!-- Sustainability Tasks Action -->
+    <record id="action_view_sustainability_tasks" model="ir.actions.act_window">
+        <field name="name">Sustainability Tasks</field>
+        <field name="res_model">project.task</field>
+        <field name="view_mode">kanban,list,form</field>
+        <field name="domain">[]</field>
+        <field name="context">{}</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                Create a new Sustainability Task
+            </p>
+            <p>
+                Track and manage sustainability tasks within your projects.
+            </p>
+        </field>
+    </record>
+
+    <!-- Sustainability Tasks Menu -->
+    <menuitem id="menu_csr_tasks"
+              name="Tasks"
+              parent="menu_csr_root"
+              action="action_view_sustainability_tasks"
+              sequence="20"/>
+
+    <!-- Employee Sustainability Action -->
+    <record id="action_view_sustainability_employees" model="ir.actions.act_window">
+        <field name="name">Employees</field>
+        <field name="res_model">hr.employee</field>
+        <field name="view_mode">kanban,list,form</field>
+        <field name="domain">[]</field>
+        <field name="context">{}</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                View Employee Sustainability Metrics
+            </p>
+            <p>
+                Track employee sustainability points, badges, and contributions.
+            </p>
+        </field>
+    </record>
+
+    <!-- Employee Sustainability Menu -->
+    <menuitem id="menu_csr_employees"
+              name="Employees"
+              parent="menu_csr_root"
+              action="action_view_sustainability_employees"
+              sequence="30"/>
+</odoo>
+
