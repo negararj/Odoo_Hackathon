@@ -12,9 +12,6 @@ class HrEmployee(models.Model):
         ('gold', 'Gold'),
     ], string='Badge', compute='_compute_badge')
     money_O2 = fields.Float(string='Money O2')
-    # employee_skills = fields.Char(string='My Skills', help='Comma-separated list of your skills (e.g., Python, Leadership, Design)')
-    #project_ids = fields.Many2many('project.project', string='Projects', help='Projects associated with this employee')
-    #project_task_ids = fields.Many2many('project.task', string='Tasks', help='Tasks associated with this employee')
 
     @api.depends('money_O2')
     def _compute_badge(self):
@@ -25,9 +22,17 @@ class HrEmployee(models.Model):
                 employee.badge = 'silver'
             else:
                 employee.badge = 'bronze'
+
+
+class HrEmployeePublic(models.Model):
+    _inherit = 'hr.employee.public'
     
-    # Add custom fields for CSR and Sustainability here
-    # Example fields (you can customize these):
-    # csr_volunteer_hours = fields.Float(string='CSR Volunteer Hours')
-    # sustainability_training_completed = fields.Boolean(string='Sustainability Training Completed')
+    # Add custom fields to public model so they're accessible to regular users
+    sustainability_points = fields.Integer(string='Sustainability Points', related='employee_id.sustainability_points', readonly=True)
+    badge = fields.Selection([
+        ('bronze', 'Bronze'),
+        ('silver', 'Silver'),
+        ('gold', 'Gold'),
+    ], string='Badge', related='employee_id.badge', readonly=True)
+    money_O2 = fields.Float(string='Money O2', related='employee_id.money_O2', readonly=True)
 

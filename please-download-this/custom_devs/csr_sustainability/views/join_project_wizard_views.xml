@@ -11,7 +11,10 @@
                         <field name="project_id" 
                                domain="[('is_sustainability', '=', True)]"
                                options="{'no_create': True, 'no_open': True}"/>
-                        <field name="employee_id" readonly="1"/>
+                        <field name="employee_id" 
+                               readonly="1"
+                               domain="[]"
+                               options="{'no_create': True}"/>
                         <field name="message" placeholder="Optional: Add a message about why you want to join this project..."/>
                     </group>
                 </sheet>
