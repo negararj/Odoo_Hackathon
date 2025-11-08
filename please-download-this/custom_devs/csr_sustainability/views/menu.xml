@@ -34,8 +34,8 @@
         <field name="name">Sustainability Tasks</field>
         <field name="res_model">project.task</field>
         <field name="view_mode">kanban,list,form</field>
-        <field name="domain">[]</field>
-        <field name="context">{}</field>
+        <field name="domain">[('project_id.is_sustainability', '=', True)]</field>
+        <field name="context">{'search_default_sustainability_tasks': 1}</field>
         <field name="help" type="html">
             <p class="o_view_nocontent_smiling_face">
                 Create a new Sustainability Task

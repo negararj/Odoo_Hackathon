@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Wizard Form View -->
+    <record id="view_join_project_wizard_form" model="ir.ui.view">
+        <field name="name">csr.join.project.wizard.form</field>
+        <field name="model">csr.join.project.wizard</field>
+        <field name="arch" type="xml">
+            <form string="Join Sustainability Project">
+                <sheet>
+                    <group>
+                        <field name="project_id" 
+                               domain="[('is_sustainability', '=', True)]"
+                               options="{'no_create': True, 'no_open': True}"/>
+                        <field name="employee_id" readonly="1"/>
+                        <field name="message" placeholder="Optional: Add a message about why you want to join this project..."/>
+                    </group>
+                </sheet>
+                <footer>
+                    <button name="action_join_project" 
+                            string="Join Project" 
+                            type="object" 
+                            class="btn-primary"/>
+                    <button string="Cancel" 
+                            class="btn-secondary" 
+                            special="cancel"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+
+    <!-- Wizard Action -->
+    <record id="action_join_project_wizard" model="ir.actions.act_window">
+        <field name="name">Join Sustainability Project</field>
+        <field name="res_model">csr.join.project.wizard</field>
+        <field name="view_mode">form</field>
+        <field name="target">new</field>
+        <field name="binding_model_id" ref="project.model_project_project"/>
+        <field name="binding_view_types">list,form</field>
+    </record>
+</odoo>
+

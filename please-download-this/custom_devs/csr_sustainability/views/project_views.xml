@@ -10,6 +10,19 @@
             <xpath expr="//field[@name='name']" position="after">
                 <field name="is_sustainability"/>
                 <field name="ngo_id" groups="csr_sustainability.group_ngo_portal"/>
+                <field name="employee_ids" widget="many2many_tags" 
+                       groups="base.group_user"
+                       invisible="not is_sustainability"/>
+            </xpath>
+            
+            <!-- Add Join Project button in header for employees -->
+            <xpath expr="//header" position="inside">
+                <button name="%(csr_sustainability.action_join_project_wizard)d"
+                        type="action"
+                        string="Join Project"
+                        class="oe_highlight"
+                        groups="base.group_user"
+                        invisible="not is_sustainability"/>
             </xpath>
         </field>
     </record>
@@ -24,6 +37,7 @@
             <xpath expr="//field[@name='name']" position="after">
                 <field name="is_sustainability"/>
                 <field name="ngo_id"/>
+                <field name="employee_ids" widget="many2many_tags"/>
             </xpath>
         </field>
     </record>

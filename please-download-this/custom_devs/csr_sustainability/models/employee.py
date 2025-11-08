@@ -13,6 +13,8 @@ class HrEmployee(models.Model):
     ], string='Badge', compute='_compute_badge')
     money_O2 = fields.Float(string='Money O2')
     # employee_skills = fields.Char(string='My Skills', help='Comma-separated list of your skills (e.g., Python, Leadership, Design)')
+    #project_ids = fields.Many2many('project.project', string='Projects', help='Projects associated with this employee')
+    #project_task_ids = fields.Many2many('project.task', string='Tasks', help='Tasks associated with this employee')
 
     @api.depends('money_O2')
     def _compute_badge(self):

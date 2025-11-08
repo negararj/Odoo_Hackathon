@@ -14,6 +14,8 @@
         'views/menu.xml',
         'views/ngo_views.xml',
         'views/project_search.xml',
+        'views/task_search.xml',
+        'views/join_project_wizard_views.xml',
         'views/project_views.xml',
         'views/task_views.xml',
         'views/employee_views.xml',
