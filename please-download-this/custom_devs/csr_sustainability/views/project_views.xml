@@ -31,6 +31,10 @@
                 <field name="employee_ids" widget="many2many_tags" 
                        groups="base.group_user"
                        invisible="not is_sustainability"/>
+                <field name="completed_by_employee_ids" widget="many2many_tags" 
+                       groups="base.group_user"
+                       invisible="not is_sustainability"
+                       readonly="1"/>
             </xpath>
             
             <!-- Add Join Project button in header for employees -->
@@ -41,6 +45,12 @@
                         class="oe_highlight"
                         groups="base.group_user"
                         invisible="not is_sustainability"/>
+                <button name="action_mark_done"
+                        type="object"
+                        string="Mark as Done"
+                        class="oe_highlight"
+                        groups="base.group_user"
+                        invisible="not can_mark_done"/>
             </xpath>
         </field>
     </record>
@@ -57,6 +67,7 @@
                 <field name="ngo_id"/>
                 <field name="xp"/>
                 <field name="employee_ids" widget="many2many_tags"/>
+                <field name="completed_by_employee_ids" widget="many2many_tags"/>
             </xpath>
         </field>
     </record>

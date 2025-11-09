@@ -107,31 +107,41 @@ class ProjectPortal(portal.CustomerPortal):
 
     @http.route(['/my/projects', '/my/projects/page/<int:page>'], type='http', auth="user", website=True)
     def portal_my_projects(self, page=1, **kw):
-        """Display list of sustainability projects for NGO users"""
-        # Check if user is linked to an NGO (more flexible check)
+        """Display list of sustainability projects for NGO users or employees"""
+        # Check if user is NGO or employee
         ngo = request.env['csr.ngo'].sudo().search([('user_id', '=', request.env.user.id)], limit=1)
-        if not ngo:
-            # Show a helpful message if NGO is not linked
-            values = {
-                'page_name': 'project',
-                'error_message': 'No NGO account found. Please contact your administrator to link an NGO to your user account.',
-            }
-            return request.render("csr_sustainability.portal_my_projects", values)
-        
-        # Check if user has portal access (warn if not)
-        if not request.env.user.has_group('base.group_portal'):
-            values = {
-                'page_name': 'project',
-                'error_message': f'Your user account "{request.env.user.login}" is not set up as a portal user. Please contact your administrator to grant portal access and assign you to the "NGO Portal User" group.',
-            }
-            return request.render("csr_sustainability.portal_my_projects", values)
+        employee = request.env['hr.employee'].sudo().search([('user_id', '=', request.env.user.id)], limit=1)
         
         # Use sudo to bypass record rules for portal users
         Project = request.env['project.project'].sudo()
-        domain = [('is_sustainability', '=', True), ('ngo_id', '=', ngo.id)]
         
-        # Count projects
-        project_count = Project.search_count(domain)
+        if ngo:
+            # NGO users see their own projects
+            domain = [('is_sustainability', '=', True), ('ngo_id', '=', ngo.id)]
+            project_count = Project.search_count(domain)
+            offset = (page - 1) * self._items_per_page
+            projects = Project.search(domain, limit=self._items_per_page, offset=offset, order='id desc')
+        elif employee:
+            # Employee users see projects they're part of
+            # First, get all sustainability projects
+            all_projects = Project.search([('is_sustainability', '=', True)])
+            # Filter to only projects where this employee is a member
+            employee_projects = all_projects.filtered(lambda p: employee.id in p.employee_ids.ids)
+            
+            project_count = len(employee_projects)
+            offset = (page - 1) * self._items_per_page
+            # Sort by ID descending and apply pagination
+            projects = sorted(employee_projects, key=lambda p: p.id, reverse=True)[offset:offset + self._items_per_page]
+        else:
+            # No NGO or employee found
+            values = {
+                'page_name': 'project',
+                'error_message': 'No NGO or employee account found. Please contact your administrator.',
+                'ngo': False,
+                'employee': False,
+                'projects': [],
+            }
+            return request.render("csr_sustainability.portal_my_projects", values)
         
         # Paging
         pager = request.website.pager(
@@ -142,15 +152,13 @@ class ProjectPortal(portal.CustomerPortal):
             step=self._items_per_page
         )
         
-        # Get projects
-        projects = Project.search(domain, limit=self._items_per_page, offset=pager['offset'], order='id desc')
-        
         values = {
             'projects': projects,
             'page_name': 'project',
             'pager': pager,
             'default_url': '/my/projects',
             'ngo': ngo,
+            'employee': employee,
             'project_count': project_count,
         }
         
@@ -159,25 +167,76 @@ class ProjectPortal(portal.CustomerPortal):
     @http.route(['/my/projects/<int:project_id>'], type='http', auth="user", website=True)
     def portal_project_page(self, project_id=None, access_token=None, **kw):
         """Display a single sustainability project"""
+        # Check if user is NGO or employee
         ngo = request.env['csr.ngo'].sudo().search([('user_id', '=', request.env.user.id)], limit=1)
-        if not ngo:
-            return request.redirect('/my/home')
+        employee = request.env['hr.employee'].sudo().search([('user_id', '=', request.env.user.id)], limit=1)
         
         try:
             project_sudo = request.env['project.project'].sudo().browse(project_id)
         except:
             return request.redirect('/my/projects')
         
-        # Check access
-        if project_sudo.ngo_id != ngo or not project_sudo.is_sustainability:
-            return request.redirect('/my/projects')
+        # Check access - NGO can see their projects, employees can see projects they're part of
+        if ngo:
+            if project_sudo.ngo_id != ngo or not project_sudo.is_sustainability:
+                return request.redirect('/my/projects')
+        elif employee:
+            if not project_sudo.is_sustainability or employee not in project_sudo.employee_ids:
+                return request.redirect('/my/projects')
+        else:
+            return request.redirect('/my/home')
+        
+        # Check if employee has completed this project and if they're a member
+        is_completed = False
+        is_employee_in_project = False
+        if employee:
+            is_completed = employee.id in project_sudo.completed_by_employee_ids.ids
+            is_employee_in_project = employee.id in project_sudo.employee_ids.ids
         
         values = {
             'project': project_sudo,
             'page_name': 'project',
+            'ngo': ngo,
+            'employee': employee,
+            'is_completed': is_completed,
+            'is_employee_in_project': is_employee_in_project,
         }
         
         return request.render("csr_sustainability.project_portal_template", values)
+    
+    @http.route(['/my/projects/<int:project_id>/mark_done'], type='http', auth="user", website=True, methods=['POST'])
+    def portal_project_mark_done(self, project_id=None, **kw):
+        """Mark a project as done for the current employee"""
+        employee = request.env['hr.employee'].sudo().search([('user_id', '=', request.env.user.id)], limit=1)
+        if not employee:
+            return request.redirect('/my/home')
+        
+        try:
+            project = request.env['project.project'].sudo().browse(project_id)
+            if not project.exists() or not project.is_sustainability:
+                return request.redirect('/my/projects')
+        except:
+            return request.redirect('/my/projects')
+        
+        # Check if employee is part of the project
+        if employee not in project.employee_ids:
+            return request.redirect(f'/my/projects/{project_id}')
+        
+        # Check if already completed
+        if employee in project.completed_by_employee_ids:
+            return request.redirect(f'/my/projects/{project_id}')
+        
+        # Mark as done and award XP
+        project.sudo().write({
+            'completed_by_employee_ids': [(4, employee.id)]
+        })
+        
+        if project.xp > 0:
+            employee.sudo().write({
+                'sustainability_points': employee.sustainability_points + int(project.xp)
+            })
+        
+        return request.redirect(f'/my/projects/{project_id}')
 
     @http.route(['/my/activities', '/my/activities/page/<int:page>'], type='http', auth="user", website=True)
     def portal_my_activities(self, page=1, **kw):
