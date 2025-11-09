@@ -54,7 +54,7 @@
         <field name="arch" type="xml">
             <list string="CSR Activities">
                 <field name="name"/>
-                <field name="ngo_id"/>
+                <field name="ngo_id" optional="show"/>
                 <field name="xp"/>
                 <field name="value"/>
                 <field name="purchase_count"/>
@@ -73,6 +73,9 @@
                 <field name="ngo_id"/>
                 <filter string="Active" name="active" domain="[('active', '=', True)]"/>
                 <filter string="Inactive" name="inactive" domain="[('active', '=', False)]"/>
+                <group>
+                    <filter string="NGO" name="group_by_ngo" domain="[]" context="{'group_by': 'ngo_id'}"/>
+                </group>
             </search>
         </field>
     </record>

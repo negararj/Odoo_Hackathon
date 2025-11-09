@@ -6,7 +6,7 @@
         <field name="res_model">project.project</field>
         <field name="view_mode">kanban,list,form</field>
         <field name="domain">[('is_sustainability', '=', True)]</field>
-        <field name="context">{'search_default_sustainability_projects': 1}</field>
+        <field name="context">{'search_default_sustainability_projects': 1, 'group_by': 'project_status'}</field>
         <field name="help" type="html">
             <p class="o_view_nocontent_smiling_face">
                 Create a new Sustainability Project
@@ -68,6 +68,48 @@
                 <field name="xp"/>
                 <field name="employee_ids" widget="many2many_tags"/>
                 <field name="completed_by_employee_ids" widget="many2many_tags"/>
+            </xpath>
+        </field>
+    </record>
+
+    <!-- Kanban View for Sustainability Project -->
+    <record id="view_project_sustainability_kanban" model="ir.ui.view">
+        <field name="name">project.project.kanban.sustainability</field>
+        <field name="model">project.project</field>
+        <field name="inherit_id" ref="project.view_project_kanban"/>
+        <field name="arch" type="xml">
+            <xpath expr="//kanban" position="attributes">
+                <attribute name="default_group_by">project_status</attribute>
+            </xpath>
+            <xpath expr="//field[@name='sequence']" position="after">
+                <field name="project_status"/>
+                <field name="employee_ids"/>
+                <field name="completed_by_employee_ids"/>
+                <field name="xp"/>
+            </xpath>
+            <xpath expr="//t[@t-name='card']" position="inside">
+                <div t-if="is_sustainability" class="o_project_kanban_sustainability_info mt-2">
+                    <div class="row">
+                        <div class="col-6" t-if="record.ngo_id.value">
+                            <div class="text-muted small">NGO</div>
+                            <div><field name="ngo_id"/></div>
+                        </div>
+                        <div class="col-6" t-if="record.xp.raw_value > 0">
+                            <div class="text-muted small">XP Reward</div>
+                            <div><strong><field name="xp"/> XP</strong></div>
+                        </div>
+                    </div>
+                    <div class="row mt-2">
+                        <div class="col-6">
+                            <div class="text-muted small">Employees</div>
+                            <div><field name="employee_ids" widget="many2many_tags" nolabel="1"/></div>
+                        </div>
+                        <div class="col-6">
+                            <div class="text-muted small">Completed By</div>
+                            <div><field name="completed_by_employee_ids" widget="many2many_tags" nolabel="1"/></div>
+                        </div>
+                    </div>
+                </div>
             </xpath>
         </field>
     </record>

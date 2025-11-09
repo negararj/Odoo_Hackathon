@@ -1,0 +1,241 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- Activities List Template -->
+    <template id="portal_my_activities" name="My Activities">
+        <t t-call="portal.portal_layout">
+            <t t-set="breadcrumbs_searchbar" t-value="True"/>
+
+            <t t-call="portal.portal_searchbar">
+                <t t-set="title">My Activities</t>
+            </t>
+            <div t-if="error_message" class="alert alert-danger" role="alert">
+                <t t-out="error_message"/>
+            </div>
+            <div t-if="not error_message and not activities" class="alert alert-warning" role="alert">
+                <t t-if="ngo">
+                    There are currently no activities for your account.
+                    <a t-attf-href="/my/activities/new" class="btn btn-primary mt-2">Create Your First Activity</a>
+                </t>
+                <t t-else="">
+                    There are currently no activities available.
+                </t>
+            </div>
+            <t t-if="activities" t-call="portal.portal_table">
+                <thead>
+                    <tr class="active">
+                        <th>Activity Name</th>
+                        <th t-if="employee">NGO</th>
+                        <th class="text-end">XP (Price)</th>
+                        <th class="text-end">O2 Value</th>
+                        <th class="text-center">Status</th>
+                        <th class="text-end">Purchases</th>
+                    </tr>
+                </thead>
+                <t t-foreach="activities" t-as="activity">
+                    <tr>
+                        <td><a t-att-href="activity.get_portal_url()"><t t-out="activity.name"/></a></td>
+                        <td t-if="employee"><t t-out="activity.ngo_id.name or '-'"/></td>
+                        <td class="text-end"><t t-out="activity.xp"/></td>
+                        <td class="text-end"><t t-out="activity.value"/></td>
+                        <td class="text-center">
+                            <span t-if="activity.active" class="badge rounded-pill text-bg-success">
+                                <i class="fa fa-fw fa-check"/> Active</span>
+                            <span t-else="" class="badge rounded-pill text-bg-secondary">
+                                <i class="fa fa-fw fa-archive"/> Inactive</span>
+                        </td>
+                        <td class="text-end">
+                            <span t-out="activity.purchase_count"/>
+                        </td>
+                    </tr>
+                </t>
+            </t>
+            <div class="mt-3" t-if="ngo">
+                <a t-attf-href="/my/activities/new" class="btn btn-primary">
+                    <i class="fa fa-plus"/> Create New Activity
+                </a>
+            </div>
+        </t>
+    </template>
+
+    <!-- Activity Create Form -->
+    <template id="portal_activity_new" name="Create Activity">
+        <t t-call="portal.portal_layout">
+            <t t-set="breadcrumbs_searchbar" t-value="True"/>
+            <t t-call="portal.portal_searchbar">
+                <t t-set="title">Create New Activity</t>
+            </t>
+            <form method="post" action="/my/activities/new" class="mt-3">
+                <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()"/>
+                <div class="card">
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-12 mb-3">
+                                <label for="name" class="form-label">Activity Name <span class="text-danger">*</span></label>
+                                <input type="text" class="form-control" id="name" name="name" required="required"/>
+                            </div>
+                            <div class="col-md-12 mb-3">
+                                <label for="description" class="form-label">Description</label>
+                                <textarea class="form-control" id="description" name="description" rows="4"></textarea>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="xp" class="form-label">XP (Price) <span class="text-danger">*</span></label>
+                                <input type="number" step="0.01" class="form-control" id="xp" name="xp" required="required" min="0"/>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="value" class="form-label">O2 Value <span class="text-danger">*</span></label>
+                                <input type="number" step="0.01" class="form-control" id="value" name="value" required="required" min="0"/>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card-footer">
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fa fa-save"/> Create Activity
+                        </button>
+                        <a t-attf-href="/my/activities" class="btn btn-secondary">Cancel</a>
+                    </div>
+                </div>
+            </form>
+        </t>
+    </template>
+
+    <!-- Activity Edit Form -->
+    <template id="portal_activity_edit" name="Edit Activity">
+        <t t-call="portal.portal_layout">
+            <t t-set="breadcrumbs_searchbar" t-value="True"/>
+            <t t-call="portal.portal_searchbar">
+                <t t-set="title">Edit Activity</t>
+            </t>
+            <form method="post" t-attf-action="/my/activities/{{activity.id}}/edit" class="mt-3">
+                <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()"/>
+                <div class="card">
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-12 mb-3">
+                                <label for="name" class="form-label">Activity Name <span class="text-danger">*</span></label>
+                                <input type="text" class="form-control" id="name" name="name" required="required" t-att-value="activity.name"/>
+                            </div>
+                            <div class="col-md-12 mb-3">
+                                <label for="description" class="form-label">Description</label>
+                                <textarea class="form-control" id="description" name="description" rows="4" t-out="activity.description or ''"/>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="xp" class="form-label">XP (Price) <span class="text-danger">*</span></label>
+                                <input type="number" step="0.01" class="form-control" id="xp" name="xp" required="required" min="0" t-att-value="activity.xp"/>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="value" class="form-label">O2 Value <span class="text-danger">*</span></label>
+                                <input type="number" step="0.01" class="form-control" id="value" name="value" required="required" min="0" t-att-value="activity.value"/>
+                            </div>
+                            <div class="col-md-12 mb-3">
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" id="active" name="active" t-att-checked="activity.active and 'checked' or ''"/>
+                                    <label class="form-check-label" for="active">Active</label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card-footer">
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fa fa-save"/> Save Changes
+                        </button>
+                        <a t-attf-href="/my/activities/{{activity.id}}" class="btn btn-secondary">Cancel</a>
+                    </div>
+                </div>
+            </form>
+        </t>
+    </template>
+
+    <!-- Activity Detail Template -->
+    <template id="portal_activity_template" name="Activity" inherit_id="portal.portal_sidebar" primary="True">
+        <xpath expr="//div[hasclass('o_portal_sidebar')]" position="inside">
+            <div class="row o_portal_activity_sidebar" t-att-data-activity-id="activity.id">
+                <!-- Sidebar -->
+                <t t-call="portal.portal_record_sidebar">
+                    <t t-set="classes" t-value="'col-lg-4 col-xxl-3 d-print-none'"/>
+                    <t t-set="title">
+                        <h2 t-field="activity.name" class="mb-0 text-break"/>
+                    </t>
+                    <t t-set="entries">
+                        <div class="d-flex flex-column gap-4 mt-3">
+                            <div class="d-flex flex-column gap-2" id="activity_sidebar_info">
+                                <div>
+                                    <h6><small class="text-muted">XP (Price)</small></h6>
+                                    <div>
+                                        <span class="badge rounded-pill text-bg-primary">
+                                            <t t-out="activity.xp"/> XP
+                                        </span>
+                                    </div>
+                                </div>
+                                
+                                <div>
+                                    <h6><small class="text-muted">O2 Value</small></h6>
+                                    <div>
+                                        <span class="badge rounded-pill text-bg-success">
+                                            <t t-out="activity.value"/> O2
+                                        </span>
+                                    </div>
+                                </div>
+
+                                <div t-if="activity.purchase_count > 0">
+                                    <h6><small class="text-muted">Purchases</small></h6>
+                                    <div>
+                                        <span class="badge rounded-pill text-bg-info">
+                                            <t t-out="activity.purchase_count"/> Purchase(s)
+                                        </span>
+                                    </div>
+                                </div>
+
+                                <div>
+                                    <h6><small class="text-muted">Status</small></h6>
+                                    <div>
+                                        <span t-if="activity.active" class="badge rounded-pill text-bg-success">
+                                            <i class="fa fa-fw fa-check"/> Active
+                                        </span>
+                                        <span t-else="" class="badge rounded-pill text-bg-secondary">
+                                            <i class="fa fa-fw fa-archive"/> Inactive
+                                        </span>
+                                    </div>
+                                </div>
+
+                                <div t-if="employee and activity.ngo_id">
+                                    <h6><small class="text-muted">NGO</small></h6>
+                                    <div>
+                                        <span t-out="activity.ngo_id.name"/>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="d-flex gap-2" t-if="ngo">
+                                <a t-attf-href="/my/activities/{{activity.id}}/edit" class="btn btn-primary w-100">
+                                    <i class="fa fa-edit"/> Edit Activity
+                                </a>
+                            </div>
+                            <div class="d-flex gap-2" t-if="employee and activity.active">
+                                <button name="%(csr_sustainability.action_purchase_activity_wizard)d"
+                                        type="action"
+                                        string="Purchase Activity"
+                                        class="btn btn-success w-100"
+                                        context="{'active_id': activity.id, 'active_model': 'csr.activity'}"/>
+                            </div>
+                        </div>
+                    </t>
+                </t>
+                <!-- Content -->
+                <div class="col-lg-8 col-xxl-9">
+                    <div class="o_portal_chatter">
+                        <div class="card">
+                            <div class="card-body">
+                                <h5 class="card-title">Description</h5>
+                                <div t-if="activity.description" t-out="activity.description"/>
+                                <p t-else="" class="text-muted">No description provided.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </xpath>
+    </template>
+
+</odoo>
+

@@ -23,6 +23,7 @@
         'views/ngo_views.xml',
         'views/menu.xml',
         'views/portal_project_templates.xml',
+        'views/portal_activity_templates.xml',
         'data/project_data.xml',
     ],
     'application': True,

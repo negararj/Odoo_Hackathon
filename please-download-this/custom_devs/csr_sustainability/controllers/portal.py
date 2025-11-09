@@ -240,26 +240,35 @@ class ProjectPortal(portal.CustomerPortal):
 
     @http.route(['/my/activities', '/my/activities/page/<int:page>'], type='http', auth="user", website=True)
     def portal_my_activities(self, page=1, **kw):
-        """Display list of activities for NGO users"""
+        """Display list of activities for NGO users or all activities for employees"""
+        # Check if user is NGO or employee
         ngo = request.env['csr.ngo'].sudo().search([('user_id', '=', request.env.user.id)], limit=1)
-        if not ngo:
-            values = {
-                'page_name': 'activity',
-                'error_message': 'No NGO account found. Please contact your administrator to link an NGO to your user account.',
-            }
-            return request.render("csr_sustainability.portal_my_activities", values)
-        
-        if not request.env.user.has_group('base.group_portal'):
-            values = {
-                'page_name': 'activity',
-                'error_message': f'Your user account "{request.env.user.login}" is not set up as a portal user.',
-            }
-            return request.render("csr_sustainability.portal_my_activities", values)
+        employee = request.env['hr.employee'].sudo().search([('user_id', '=', request.env.user.id)], limit=1)
         
         Activity = request.env['csr.activity'].sudo()
-        domain = [('ngo_id', '=', ngo.id)]
         
-        activity_count = Activity.search_count(domain)
+        if ngo:
+            # NGO users see their own activities
+            domain = [('ngo_id', '=', ngo.id)]
+            activity_count = Activity.search_count(domain)
+            offset = (page - 1) * self._items_per_page
+            activities = Activity.search(domain, limit=self._items_per_page, offset=offset, order='id desc')
+        elif employee:
+            # Employee users see all active activities from all NGOs
+            domain = [('active', '=', True)]
+            activity_count = Activity.search_count(domain)
+            offset = (page - 1) * self._items_per_page
+            activities = Activity.search(domain, limit=self._items_per_page, offset=offset, order='id desc')
+        else:
+            # No NGO or employee found
+            values = {
+                'page_name': 'activity',
+                'error_message': 'No NGO or employee account found. Please contact your administrator.',
+                'ngo': False,
+                'employee': False,
+                'activities': [],
+            }
+            return request.render("csr_sustainability.portal_my_activities", values)
         
         pager = request.website.pager(
             url="/my/activities",
@@ -269,14 +278,13 @@ class ProjectPortal(portal.CustomerPortal):
             step=self._items_per_page
         )
         
-        activities = Activity.search(domain, limit=self._items_per_page, offset=pager['offset'], order='id desc')
-        
         values = {
             'activities': activities,
             'page_name': 'activity',
             'pager': pager,
             'default_url': '/my/activities',
             'ngo': ngo,
+            'employee': employee,
             'activity_count': activity_count,
         }
         
@@ -352,21 +360,28 @@ class ProjectPortal(portal.CustomerPortal):
     def portal_activity_page(self, activity_id=None, access_token=None, **kw):
         """Display a single activity"""
         ngo = request.env['csr.ngo'].sudo().search([('user_id', '=', request.env.user.id)], limit=1)
-        if not ngo:
-            return request.redirect('/my/home')
+        employee = request.env['hr.employee'].sudo().search([('user_id', '=', request.env.user.id)], limit=1)
         
         try:
             activity_sudo = request.env['csr.activity'].sudo().browse(activity_id)
         except:
             return request.redirect('/my/activities')
         
-        # Check access
-        if activity_sudo.ngo_id != ngo:
-            return request.redirect('/my/activities')
+        # Check access - NGO can see their activities, employees can see all active activities
+        if ngo:
+            if activity_sudo.ngo_id != ngo:
+                return request.redirect('/my/activities')
+        elif employee:
+            if not activity_sudo.active:
+                return request.redirect('/my/activities')
+        else:
+            return request.redirect('/my/home')
         
         values = {
             'activity': activity_sudo,
             'page_name': 'activity',
+            'ngo': ngo,
+            'employee': employee,
         }
         
         return request.render("csr_sustainability.portal_activity_template", values)

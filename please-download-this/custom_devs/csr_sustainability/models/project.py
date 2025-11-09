@@ -12,6 +12,24 @@ class ProjectProject(models.Model):
                                                   string='Completed By', help='Employees who have completed this project')
     xp = fields.Float(string='XP (Experience Points)', default=0.0, help='Experience points that employees can earn by completing this project')
     can_mark_done = fields.Boolean(string='Can Mark Done', compute='_compute_can_mark_done', help='Whether the current employee can mark this project as done')
+    project_status = fields.Selection([
+        ('not_started', 'Not Started'),
+        ('in_progress', 'In Progress'),
+        ('done', 'Done'),
+    ], string='Project Status', compute='_compute_project_status', store=True, help='Status of the project based on employee participation')
+    
+    @api.depends('employee_ids', 'completed_by_employee_ids', 'is_sustainability')
+    def _compute_project_status(self):
+        """Compute project status based on employee participation"""
+        for project in self:
+            if not project.is_sustainability:
+                project.project_status = False
+            elif not project.employee_ids:
+                project.project_status = 'not_started'
+            elif project.completed_by_employee_ids:
+                project.project_status = 'done'
+            else:
+                project.project_status = 'in_progress'
     
     @api.depends('employee_ids', 'completed_by_employee_ids', 'is_sustainability')
     def _compute_can_mark_done(self):
