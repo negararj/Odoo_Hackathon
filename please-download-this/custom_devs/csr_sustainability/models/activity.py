@@ -22,7 +22,6 @@ class CSRActivity(models.Model):
         for activity in self:
             activity.purchase_count = len(activity.purchase_ids)
     
-    @api.model
     def _compute_access_url(self):
         super()._compute_access_url()
         for activity in self:

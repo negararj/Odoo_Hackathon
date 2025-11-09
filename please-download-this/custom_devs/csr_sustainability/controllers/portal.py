@@ -184,3 +184,136 @@ class ProjectPortal(portal.CustomerPortal):
         
         return request.render("csr_sustainability.project_portal_template", values)
 
+    @http.route(['/my/activities', '/my/activities/page/<int:page>'], type='http', auth="user", website=True)
+    def portal_my_activities(self, page=1, **kw):
+        """Display list of activities for NGO users"""
+        ngo = request.env['csr.ngo'].sudo().search([('user_id', '=', request.env.user.id)], limit=1)
+        if not ngo:
+            values = {
+                'page_name': 'activity',
+                'error_message': 'No NGO account found. Please contact your administrator to link an NGO to your user account.',
+            }
+            return request.render("csr_sustainability.portal_my_activities", values)
+        
+        if not request.env.user.has_group('base.group_portal'):
+            values = {
+                'page_name': 'activity',
+                'error_message': f'Your user account "{request.env.user.login}" is not set up as a portal user.',
+            }
+            return request.render("csr_sustainability.portal_my_activities", values)
+        
+        Activity = request.env['csr.activity'].sudo()
+        domain = [('ngo_id', '=', ngo.id)]
+        
+        activity_count = Activity.search_count(domain)
+        
+        pager = request.website.pager(
+            url="/my/activities",
+            url_args={},
+            total=activity_count,
+            page=page,
+            step=self._items_per_page
+        )
+        
+        activities = Activity.search(domain, limit=self._items_per_page, offset=pager['offset'], order='id desc')
+        
+        values = {
+            'activities': activities,
+            'page_name': 'activity',
+            'pager': pager,
+            'default_url': '/my/activities',
+            'ngo': ngo,
+            'activity_count': activity_count,
+        }
+        
+        return request.render("csr_sustainability.portal_my_activities", values)
+
+    @http.route(['/my/activities/new'], type='http', auth="user", website=True, methods=['GET', 'POST'])
+    def portal_my_activities_new(self, **kw):
+        """Create a new activity"""
+        ngo = request.env['csr.ngo'].sudo().search([('user_id', '=', request.env.user.id)], limit=1)
+        if not ngo:
+            return request.redirect('/my/home')
+
+        if request.httprequest.method == 'POST':
+            vals = {
+                'name': kw.get('name'),
+                'description': kw.get('description') or '',
+                'xp': float(kw.get('xp', 0)) or 0,
+                'value': float(kw.get('value', 0)) or 0,
+                'ngo_id': ngo.id,
+                'active': True,
+            }
+            # Remove empty values
+            vals = {k: v for k, v in vals.items() if v}
+            activity = request.env['csr.activity'].sudo().create(vals)
+            return request.redirect(f'/my/activities/{activity.id}')
+
+        values = {
+            'page_name': 'activity',
+            'default_url': '/my/activities/new',
+            'ngo': ngo,
+        }
+        return request.render("csr_sustainability.portal_activity_new", values)
+
+    @http.route(['/my/activities/<int:activity_id>/edit'], type='http', auth="user", website=True, methods=['GET', 'POST'])
+    def portal_my_activities_edit(self, activity_id=None, **kw):
+        """Edit an activity"""
+        ngo = request.env['csr.ngo'].sudo().search([('user_id', '=', request.env.user.id)], limit=1)
+        if not ngo:
+            return request.redirect('/my/home')
+        
+        try:
+            activity = request.env['csr.activity'].sudo().browse(activity_id)
+            if not activity.exists():
+                return request.redirect('/my/activities')
+        except:
+            return request.redirect('/my/activities')
+        
+        # Check access
+        if activity.ngo_id != ngo:
+            return request.redirect('/my/activities')
+        
+        if request.httprequest.method == 'POST':
+            vals = {
+                'name': kw.get('name'),
+                'description': kw.get('description') or '',
+                'xp': float(kw.get('xp', 0)) or 0,
+                'value': float(kw.get('value', 0)) or 0,
+                'active': kw.get('active') == 'on',
+            }
+            # Remove empty values but keep description
+            vals = {k: v for k, v in vals.items() if v is not False or k == 'description'}
+            activity.write(vals)
+            return request.redirect(f'/my/activities/{activity.id}')
+        
+        values = {
+            'activity': activity,
+            'page_name': 'activity',
+            'default_url': '/my/activities/edit',
+        }
+        return request.render("csr_sustainability.portal_activity_edit", values)
+
+    @http.route(['/my/activities/<int:activity_id>'], type='http', auth="user", website=True)
+    def portal_activity_page(self, activity_id=None, access_token=None, **kw):
+        """Display a single activity"""
+        ngo = request.env['csr.ngo'].sudo().search([('user_id', '=', request.env.user.id)], limit=1)
+        if not ngo:
+            return request.redirect('/my/home')
+        
+        try:
+            activity_sudo = request.env['csr.activity'].sudo().browse(activity_id)
+        except:
+            return request.redirect('/my/activities')
+        
+        # Check access
+        if activity_sudo.ngo_id != ngo:
+            return request.redirect('/my/activities')
+        
+        values = {
+            'activity': activity_sudo,
+            'page_name': 'activity',
+        }
+        
+        return request.render("csr_sustainability.portal_activity_template", values)
+
