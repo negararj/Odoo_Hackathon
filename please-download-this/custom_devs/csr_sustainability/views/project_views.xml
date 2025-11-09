@@ -27,6 +27,7 @@
             <xpath expr="//field[@name='name']" position="after">
                 <field name="is_sustainability"/>
                 <field name="ngo_id" groups="csr_sustainability.group_ngo_portal"/>
+                <field name="xp" invisible="not is_sustainability"/>
                 <field name="employee_ids" widget="many2many_tags" 
                        groups="base.group_user"
                        invisible="not is_sustainability"/>
@@ -54,6 +55,7 @@
             <xpath expr="//field[@name='name']" position="after">
                 <field name="is_sustainability"/>
                 <field name="ngo_id"/>
+                <field name="xp"/>
                 <field name="employee_ids" widget="many2many_tags"/>
             </xpath>
         </field>

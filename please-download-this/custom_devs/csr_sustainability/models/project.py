@@ -8,6 +8,7 @@ class ProjectProject(models.Model):
     is_sustainability = fields.Boolean(string='Sustainability Project', default=False, help='Mark this project as part of the Sustainability app')
     ngo_id = fields.Many2one('csr.ngo', string='NGO', help='NGO associated with this project', index=True)
     employee_ids = fields.Many2many('hr.employee', string='Employees', help='Employees associated with this project')
+    xp = fields.Float(string='XP (Experience Points)', default=0.0, help='Experience points that employees can earn by completing this project')
     
     @api.depends('ngo_id', 'ngo_id.user_id')
     def _compute_ngo_user_id(self):

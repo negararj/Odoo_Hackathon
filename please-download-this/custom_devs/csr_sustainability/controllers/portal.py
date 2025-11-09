@@ -9,17 +9,12 @@ class ProjectPortal(portal.CustomerPortal):
 
     def _prepare_portal_layout_values(self):
         values = super(ProjectPortal, self)._prepare_portal_layout_values()
-        # Add project count, activity count and NGO info for portal home - check if user is linked to NGO
+        # Add activity count and NGO info for portal home - check if user is linked to NGO
         ngo = request.env['csr.ngo'].sudo().search([('user_id', '=', request.env.user.id)], limit=1)
         if ngo:
-            project_count = request.env['project.project'].sudo().search_count([
-                ('is_sustainability', '=', True),
-                ('ngo_id', '=', ngo.id)
-            ])
             activity_count = request.env['csr.activity'].sudo().search_count([
                 ('ngo_id', '=', ngo.id)
             ])
-            values['project_count'] = project_count
             values['activity_count'] = activity_count
             values['has_ngo'] = True
         else:
@@ -28,21 +23,19 @@ class ProjectPortal(portal.CustomerPortal):
 
     def _prepare_home_portal_values(self, counters):
         values = super(ProjectPortal, self)._prepare_home_portal_values(counters)
-        # Always compute project_count, activity_count and has_ngo for NGO users if it's requested or if counters is empty (initial load)
+        # Always compute activity_count and has_ngo for NGO users if it's requested or if counters is empty (initial load)
         ngo = request.env['csr.ngo'].sudo().search([('user_id', '=', request.env.user.id)], limit=1)
         if ngo:
             values['has_ngo'] = True
-            if 'project_count' in counters or not counters:
-                values['project_count'] = request.env['project.project'].sudo().search_count([
-                    ('is_sustainability', '=', True),
-                    ('ngo_id', '=', ngo.id)
-                ])
-            if 'activity_count' in counters or not counters:
-                values['activity_count'] = request.env['csr.activity'].sudo().search_count([
-                    ('ngo_id', '=', ngo.id)
-                ])
+            # Always compute activity count for portal home page
+            activity_count = request.env['csr.activity'].sudo().search_count([
+                ('ngo_id', '=', ngo.id)
+            ])
+            # Ensure count is always an integer
+            values['activity_count'] = int(activity_count) if activity_count else 0
         else:
             values['has_ngo'] = False
+            values['activity_count'] = 0
         return values
     @http.route(['/my/projects/new'], type='http', auth="user", website=True, methods=['GET', 'POST'])
     def portal_my_projects_new(self, **kw):
@@ -57,11 +50,12 @@ class ProjectPortal(portal.CustomerPortal):
                 'description': kw.get('description') or '',
                 'date_start': kw.get('date_start') or False,
                 'date': kw.get('date') or False,
+                'xp': float(kw.get('xp', 0)) or 0,
                 'ngo_id': ngo.id,
                 'is_sustainability': True,
             }
-            # Remove empty values
-            vals = {k: v for k, v in vals.items() if v}
+            # Remove empty values but keep xp
+            vals = {k: v for k, v in vals.items() if v or k == 'xp'}
             project = request.env['project.project'].sudo().create(vals)
             return request.redirect(f'/my/projects/{project.id}')
 
@@ -96,9 +90,10 @@ class ProjectPortal(portal.CustomerPortal):
                 'description': kw.get('description') or '',
                 'date_start': kw.get('date_start') or False,
                 'date': kw.get('date') or False,
+                'xp': float(kw.get('xp', 0)) or 0,
             }
-            # Remove empty values but keep description
-            vals = {k: v for k, v in vals.items() if v is not False or k == 'description'}
+            # Remove empty values but keep description and xp
+            vals = {k: v for k, v in vals.items() if v is not False or k in ['description', 'xp']}
             project.write(vals)
             return request.redirect(f'/my/projects/{project.id}')
         
