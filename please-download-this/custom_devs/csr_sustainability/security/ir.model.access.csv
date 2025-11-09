@@ -4,3 +4,7 @@ access_task_ngo,project.task.ngo,project.model_project_task,csr_sustainability.g
 access_ngo_user,csr.ngo.user,model_csr_ngo,base.group_user,1,1,1,1
 access_ngo_portal,csr.ngo.portal,model_csr_ngo,csr_sustainability.group_ngo_portal,1,0,0,0
 access_join_project_wizard_user,csr.join.project.wizard.user,model_csr_join_project_wizard,base.group_user,1,1,1,1
+access_activity_ngo,csr.activity.ngo,model_csr_activity,csr_sustainability.group_ngo_portal,1,1,1,1
+access_activity_user,csr.activity.user,model_csr_activity,base.group_user,1,0,0,0
+access_activity_purchase_user,csr.activity.purchase.user,model_csr_activity_purchase,base.group_user,1,0,0,0
+access_purchase_activity_wizard_user,csr.purchase.activity.wizard.user,model_csr_purchase_activity_wizard,base.group_user,1,1,1,1

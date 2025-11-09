@@ -25,6 +25,15 @@
                     <t t-set="count" t-value="project_count or 0"/>
                     <t t-set="show_count" t-value="True"/>
                 </t>
+                <t t-call="portal.portal_docs_entry">
+                    <t t-set="icon" t-value="'/web/static/img/star.svg'"/>
+                    <t t-set="title">Your Activities</t>
+                    <t t-set="url" t-value="'/my/activities'"/>
+                    <t t-set="text">Create and manage activities for employees to purchase</t>
+                    <t t-set="placeholder_count" t-value="'activity_count'"/>
+                    <t t-set="count" t-value="activity_count or 0"/>
+                    <t t-set="show_count" t-value="True"/>
+                </t>
             </div>
         </xpath>
     </template>

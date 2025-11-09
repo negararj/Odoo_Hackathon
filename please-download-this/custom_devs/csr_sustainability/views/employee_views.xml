@@ -1,5 +1,22 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
+    <!-- Employee Sustainability Action -->
+    <record id="action_view_sustainability_employees" model="ir.actions.act_window">
+        <field name="name">Employees</field>
+        <field name="res_model">hr.employee</field>
+        <field name="view_mode">kanban,list,form</field>
+        <field name="domain">[]</field>
+        <field name="context">{}</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                View Employee Sustainability Metrics
+            </p>
+            <p>
+                Track employee sustainability points, badges, and contributions.
+            </p>
+        </field>
+    </record>
+
     <!-- Form View for Employee Sustainability -->
     <record id="view_employee_sustainability_form" model="ir.ui.view">
         <field name="name">hr.employee.form.sustainability</field>
@@ -7,19 +24,40 @@
         <field name="inherit_id" ref="hr.view_employee_form"/>
         <field name="arch" type="xml">
             <!-- Add sustainability fields in a new page -->
-            <xpath expr="//notebook" position="inside">
-                <page string="Sustainability" name="sustainability">
-                    <group>
-                        <group>
-                            <field name="sustainability_points"/>
-                            <field name="money_O2"/>
-                        </group>
-                        <group>
-                            <field name="badge" readonly="1"/>
-                        </group>
-                    </group>
-                </page>
-            </xpath>
+                   <xpath expr="//notebook" position="inside">
+                       <page string="Sustainability" name="sustainability">
+                           <div class="oe_button_box" name="button_box">
+                               <button name="%(csr_sustainability.action_view_my_purchases)d" 
+                                       type="action" 
+                                       class="oe_stat_button" 
+                                       icon="fa-shopping-cart"
+                                       context="{'search_default_employee_id': id}">
+                                   <field name="activity_purchase_count" widget="statinfo" string="Purchases"/>
+                               </button>
+                           </div>
+                           <group>
+                               <group>
+                                   <field name="sustainability_points"/>
+                                   <field name="money_O2"/>
+                               </group>
+                               <group>
+                                   <field name="badge" readonly="1"/>
+                               </group>
+                           </group>
+                           <notebook>
+                               <page string="Activity Purchases" name="activity_purchases">
+                                   <field name="activity_purchase_ids" readonly="1">
+                                       <list>
+                                           <field name="activity_id"/>
+                                           <field name="purchase_date"/>
+                                           <field name="xp_paid"/>
+                                           <field name="o2_received"/>
+                                       </list>
+                                   </field>
+                               </page>
+                           </notebook>
+                       </page>
+                   </xpath>
         </field>
     </record>
 

@@ -9,14 +9,18 @@ class ProjectPortal(portal.CustomerPortal):
 
     def _prepare_portal_layout_values(self):
         values = super(ProjectPortal, self)._prepare_portal_layout_values()
-        # Add project count and NGO info for portal home - check if user is linked to NGO
+        # Add project count, activity count and NGO info for portal home - check if user is linked to NGO
         ngo = request.env['csr.ngo'].sudo().search([('user_id', '=', request.env.user.id)], limit=1)
         if ngo:
             project_count = request.env['project.project'].sudo().search_count([
                 ('is_sustainability', '=', True),
                 ('ngo_id', '=', ngo.id)
             ])
+            activity_count = request.env['csr.activity'].sudo().search_count([
+                ('ngo_id', '=', ngo.id)
+            ])
             values['project_count'] = project_count
+            values['activity_count'] = activity_count
             values['has_ngo'] = True
         else:
             values['has_ngo'] = False
@@ -24,13 +28,17 @@ class ProjectPortal(portal.CustomerPortal):
 
     def _prepare_home_portal_values(self, counters):
         values = super(ProjectPortal, self)._prepare_home_portal_values(counters)
-        # Always compute project_count and has_ngo for NGO users if it's requested or if counters is empty (initial load)
+        # Always compute project_count, activity_count and has_ngo for NGO users if it's requested or if counters is empty (initial load)
         ngo = request.env['csr.ngo'].sudo().search([('user_id', '=', request.env.user.id)], limit=1)
         if ngo:
             values['has_ngo'] = True
             if 'project_count' in counters or not counters:
                 values['project_count'] = request.env['project.project'].sudo().search_count([
                     ('is_sustainability', '=', True),
+                    ('ngo_id', '=', ngo.id)
+                ])
+            if 'activity_count' in counters or not counters:
+                values['activity_count'] = request.env['csr.activity'].sudo().search_count([
                     ('ngo_id', '=', ngo.id)
                 ])
         else:

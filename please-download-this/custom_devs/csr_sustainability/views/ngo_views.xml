@@ -23,6 +23,13 @@
                                 context="{'default_ngo_id': id, 'search_default_ngo_id': id}">
                             <field name="project_count" widget="statinfo" string="Projects"/>
                         </button>
+                        <button name="%(csr_sustainability.action_view_activities)d" 
+                                type="action" 
+                                class="oe_stat_button" 
+                                icon="fa-star"
+                                context="{'default_ngo_id': id, 'search_default_ngo_id': id}">
+                            <field name="activity_count" widget="statinfo" string="Activities"/>
+                        </button>
                     </div>
                     <group>
                         <field name="name"/>
@@ -84,11 +91,5 @@
         </field>
     </record>
 
-    <!-- Menu Item for NGOs -->
-    <menuitem id="menu_csr_ngos"
-              name="NGOs"
-              parent="menu_csr_root"
-              action="action_view_ngos"
-              sequence="40"/>
 </odoo>
 

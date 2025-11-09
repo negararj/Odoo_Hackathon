@@ -5,13 +5,20 @@ from odoo import api, fields, models
 class HrEmployee(models.Model):
     _inherit = 'hr.employee'
     
-    sustainability_points = fields.Integer(string='Sustainability Points')
+    sustainability_points = fields.Integer(string='Sustainability Points', help='XP points that can be used to purchase activities')
     badge = fields.Selection([
         ('bronze', 'Bronze'),
         ('silver', 'Silver'),
         ('gold', 'Gold'),
     ], string='Badge', compute='_compute_badge')
-    money_O2 = fields.Float(string='Money O2')
+    money_O2 = fields.Float(string='Money O2', help='O2 value earned from purchasing activities')
+    activity_purchase_ids = fields.One2many('csr.activity.purchase', 'employee_id', string='Activity Purchases')
+    activity_purchase_count = fields.Integer(string='Purchase Count', compute='_compute_activity_purchase_count')
+    
+    @api.depends('activity_purchase_ids')
+    def _compute_activity_purchase_count(self):
+        for employee in self:
+            employee.activity_purchase_count = len(employee.activity_purchase_ids)
 
     @api.depends('money_O2')
     def _compute_badge(self):

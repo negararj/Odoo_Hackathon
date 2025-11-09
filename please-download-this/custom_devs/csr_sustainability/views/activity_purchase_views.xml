@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Activity Purchase List View -->
+    <record id="view_activity_purchase_list" model="ir.ui.view">
+        <field name="name">csr.activity.purchase.list</field>
+        <field name="model">csr.activity.purchase</field>
+        <field name="arch" type="xml">
+            <list string="Activity Purchases">
+                <field name="activity_id"/>
+                <field name="employee_id"/>
+                <field name="purchase_date"/>
+                <field name="xp_paid"/>
+                <field name="o2_received"/>
+                <field name="ngo_id"/>
+            </list>
+        </field>
+    </record>
+
+    <!-- Activity Purchase Form View -->
+    <record id="view_activity_purchase_form" model="ir.ui.view">
+        <field name="name">csr.activity.purchase.form</field>
+        <field name="model">csr.activity.purchase</field>
+        <field name="arch" type="xml">
+            <form string="Activity Purchase">
+                <sheet>
+                    <group>
+                        <group>
+                            <field name="activity_id" readonly="1"/>
+                            <field name="employee_id" readonly="1"/>
+                            <field name="ngo_id" readonly="1"/>
+                        </group>
+                        <group>
+                            <field name="purchase_date" readonly="1"/>
+                            <field name="xp_paid" readonly="1"/>
+                            <field name="o2_received" readonly="1"/>
+                        </group>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <!-- Activity Purchase Search View -->
+    <record id="view_activity_purchase_search" model="ir.ui.view">
+        <field name="name">csr.activity.purchase.search</field>
+        <field name="model">csr.activity.purchase</field>
+        <field name="arch" type="xml">
+            <search string="Activity Purchases">
+                <field name="activity_id"/>
+                <field name="employee_id"/>
+                <field name="ngo_id"/>
+                <filter string="Today" name="today" domain="[('purchase_date', '>=', 'today')]"/>
+            </search>
+        </field>
+    </record>
+
+    <!-- Activity Purchase Action for Employees -->
+    <record id="action_view_my_purchases" model="ir.actions.act_window">
+        <field name="name">My Purchases</field>
+        <field name="res_model">csr.activity.purchase</field>
+        <field name="view_mode">list,form</field>
+        <field name="domain">[('employee_id.user_id', '=', uid)]</field>
+        <field name="context">{'search_default_group_date': 1}</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                No Purchases Yet
+            </p>
+            <p>
+                Your activity purchases will appear here.
+            </p>
+        </field>
+    </record>
+</odoo>
+

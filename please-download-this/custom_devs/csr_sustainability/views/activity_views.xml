@@ -1,0 +1,116 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Activity Form View -->
+    <record id="view_activity_form" model="ir.ui.view">
+        <field name="name">csr.activity.form</field>
+        <field name="model">csr.activity</field>
+        <field name="arch" type="xml">
+            <form string="CSR Activity">
+                <header>
+                    <button name="%(csr_sustainability.action_purchase_activity_wizard)d"
+                            type="action"
+                            string="Purchase Activity"
+                            class="oe_highlight"
+                            groups="base.group_user"
+                            invisible="not active"/>
+                </header>
+                <sheet>
+                    <group>
+                        <group>
+                            <field name="name"/>
+                            <field name="ngo_id" groups="csr_sustainability.group_ngo_portal"/>
+                            <field name="active"/>
+                        </group>
+                        <group>
+                            <field name="xp"/>
+                            <field name="value"/>
+                            <field name="purchase_count"/>
+                        </group>
+                    </group>
+                    <group>
+                        <field name="description" placeholder="Describe the activity..."/>
+                    </group>
+                    <notebook>
+                        <page string="Purchases" name="purchases">
+                            <field name="purchase_ids" readonly="1">
+                                <list>
+                                    <field name="employee_id"/>
+                                    <field name="purchase_date"/>
+                                    <field name="xp_paid"/>
+                                    <field name="o2_received"/>
+                                </list>
+                            </field>
+                        </page>
+                    </notebook>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <!-- Activity List View -->
+    <record id="view_activity_list" model="ir.ui.view">
+        <field name="name">csr.activity.list</field>
+        <field name="model">csr.activity</field>
+        <field name="arch" type="xml">
+            <list string="CSR Activities">
+                <field name="name"/>
+                <field name="ngo_id"/>
+                <field name="xp"/>
+                <field name="value"/>
+                <field name="purchase_count"/>
+                <field name="active" widget="boolean_toggle"/>
+            </list>
+        </field>
+    </record>
+
+    <!-- Activity Search View -->
+    <record id="view_activity_search" model="ir.ui.view">
+        <field name="name">csr.activity.search</field>
+        <field name="model">csr.activity</field>
+        <field name="arch" type="xml">
+            <search string="CSR Activities">
+                <field name="name"/>
+                <field name="ngo_id"/>
+                <filter string="Active" name="active" domain="[('active', '=', True)]"/>
+                <filter string="Inactive" name="inactive" domain="[('active', '=', False)]"/>
+            </search>
+        </field>
+    </record>
+
+    <!-- Activity Action for NGOs -->
+    <record id="action_view_activities" model="ir.actions.act_window">
+        <field name="name">Activities</field>
+        <field name="res_model">csr.activity</field>
+        <field name="view_mode">list,form</field>
+        <field name="search_view_id" ref="view_activity_search"/>
+        <field name="domain">[]</field>
+        <field name="context">{}</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                Create a new Activity
+            </p>
+            <p>
+                Create activities that employees can purchase with XP to earn O2.
+            </p>
+        </field>
+    </record>
+
+    <!-- Activity Action for Employees -->
+    <record id="action_view_activities_employee" model="ir.actions.act_window">
+        <field name="name">Available Activities</field>
+        <field name="res_model">csr.activity</field>
+        <field name="view_mode">list,form</field>
+        <field name="search_view_id" ref="view_activity_search"/>
+        <field name="domain">[('active', '=', True)]</field>
+        <field name="context">{'search_default_active': 1}</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                No Activities Available
+            </p>
+            <p>
+                Activities will appear here when NGOs create them.
+            </p>
+        </field>
+    </record>
+</odoo>
+

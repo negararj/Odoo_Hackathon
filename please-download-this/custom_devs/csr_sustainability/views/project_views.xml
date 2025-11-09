@@ -1,5 +1,22 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
+    <!-- Sustainability Projects Action -->
+    <record id="action_view_sustainability_projects" model="ir.actions.act_window">
+        <field name="name">Sustainability Projects</field>
+        <field name="res_model">project.project</field>
+        <field name="view_mode">kanban,list,form</field>
+        <field name="domain">[('is_sustainability', '=', True)]</field>
+        <field name="context">{'search_default_sustainability_projects': 1}</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                Create a new Sustainability Project
+            </p>
+            <p>
+                Track and manage your sustainability initiatives through projects.
+            </p>
+        </field>
+    </record>
+
     <!-- Form View for Sustainability Project -->
     <record id="view_project_sustainability_form" model="ir.ui.view">
         <field name="name">project.project.form.sustainability</field>
