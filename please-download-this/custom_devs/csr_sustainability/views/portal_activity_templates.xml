@@ -156,6 +156,7 @@
                     <t t-set="title">
                         <h2 t-field="activity.name" class="mb-0 text-break"/>
                     </t>
+                    <t t-set="textContent" t-value="test"/>
                     <t t-set="entries">
                         <div class="d-flex flex-column gap-4 mt-3">
                             <div class="d-flex flex-column gap-2" id="activity_sidebar_info">

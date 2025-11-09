@@ -11,6 +11,8 @@ class ProjectPortal(portal.CustomerPortal):
         values = super(ProjectPortal, self)._prepare_portal_layout_values()
         # Add activity count and NGO info for portal home - check if user is linked to NGO
         ngo = request.env['csr.ngo'].sudo().search([('user_id', '=', request.env.user.id)], limit=1)
+        employee = request.env['hr.employee'].sudo().search([('user_id', '=', request.env.user.id)], limit=1)
+        
         if ngo:
             activity_count = request.env['csr.activity'].sudo().search_count([
                 ('ngo_id', '=', ngo.id)
@@ -19,23 +21,32 @@ class ProjectPortal(portal.CustomerPortal):
             values['has_ngo'] = True
         else:
             values['has_ngo'] = False
+        
+        # Show activities button to both NGOs and employees
+        values['show_activities'] = bool(ngo or employee)
         return values
 
     def _prepare_home_portal_values(self, counters):
         values = super(ProjectPortal, self)._prepare_home_portal_values(counters)
-        # Always compute activity_count and has_ngo for NGO users if it's requested or if counters is empty (initial load)
+        # Check if user is linked to NGO
         ngo = request.env['csr.ngo'].sudo().search([('user_id', '=', request.env.user.id)], limit=1)
+        employee = request.env['hr.employee'].sudo().search([('user_id', '=', request.env.user.id)], limit=1)
+        
         if ngo:
             values['has_ngo'] = True
-            # Always compute activity count for portal home page
-            activity_count = request.env['csr.activity'].sudo().search_count([
-                ('ngo_id', '=', ngo.id)
-            ])
-            # Ensure count is always an integer
-            values['activity_count'] = int(activity_count) if activity_count else 0
+            # Compute activity_count if requested in counters or if counters is empty (initial load)
+            if not counters or 'activity_count' in counters:
+                activity_count = request.env['csr.activity'].sudo().search_count([
+                    ('ngo_id', '=', ngo.id)
+                ])
+                values['activity_count'] = int(activity_count) if activity_count else 0
         else:
             values['has_ngo'] = False
-            values['activity_count'] = 0
+            if not counters or 'activity_count' in counters:
+                values['activity_count'] = 0
+        
+        # Show activities button to both NGOs and employees
+        values['show_activities'] = bool(ngo or employee)
         return values
     @http.route(['/my/projects/new'], type='http', auth="user", website=True, methods=['GET', 'POST'])
     def portal_my_projects_new(self, **kw):

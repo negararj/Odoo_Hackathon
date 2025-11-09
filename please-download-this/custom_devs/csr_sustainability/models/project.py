@@ -107,17 +107,6 @@ class ProjectProject(models.Model):
     
     ngo_user_id = fields.Many2one('res.users', string='NGO User', compute='_compute_ngo_user_id', store=True, readonly=True, index=True, help='User account of the NGO')
     
-    @api.model
-    def create(self, vals):
-        # Automatically mark projects created by NGO users as sustainability projects
-        # and link them to the NGO
-        if self.env.user.has_group('csr_sustainability.group_ngo_portal'):
-            vals['is_sustainability'] = True
-            # Find the NGO linked to the current user
-            ngo = self.env['csr.ngo'].search([('user_id', '=', self.env.user.id)], limit=1)
-            if ngo:
-                vals['ngo_id'] = ngo.id
-        return super(ProjectProject, self).create(vals)
     
     @api.model
     def _search_ngo_user_match(self, operator, value):

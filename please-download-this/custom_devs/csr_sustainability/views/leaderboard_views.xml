@@ -1,0 +1,108 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Leaderboard List View -->
+    <record id="view_employee_leaderboard" model="ir.ui.view">
+        <field name="name">hr.employee.leaderboard</field>
+        <field name="model">hr.employee</field>
+        <field name="arch" type="xml">
+            <list string="Sustainability Leaderboard" default_order="money_O2 desc" decoration-success="leaderboard_rank == 1" decoration-info="leaderboard_rank &lt;= 3 and leaderboard_rank &gt; 1" decoration-muted="leaderboard_rank &gt; 10">
+                <field name="leaderboard_rank" widget="statinfo" string="Rank"/>
+                <field name="name" string="Employee"/>
+                <field name="job_id" string="Job Position"/>
+                <field name="department_id" string="Department"/>
+                <field name="money_O2" string="O2 Currency" sum="Total O2"/>
+                <field name="sustainability_points" string="XP Points"/>
+                <field name="badge" string="Badge" widget="badge" decoration-success="badge == 'gold'" decoration-info="badge == 'silver'" decoration-muted="badge == 'bronze'"/>
+                <field name="activity_purchase_count" string="Activities"/>
+            </list>
+        </field>
+    </record>
+
+    <!-- Leaderboard Kanban View (Optional) -->
+    <record id="view_employee_leaderboard_kanban" model="ir.ui.view">
+        <field name="name">hr.employee.leaderboard.kanban</field>
+        <field name="model">hr.employee</field>
+        <field name="arch" type="xml">
+            <kanban class="o_kanban_mobile" default_order="money_O2 desc" sample="1">
+                <field name="name"/>
+                <field name="job_id"/>
+                <field name="department_id"/>
+                <field name="money_O2"/>
+                <field name="sustainability_points"/>
+                <field name="badge"/>
+                <field name="leaderboard_rank"/>
+                <field name="activity_purchase_count"/>
+                <templates>
+                    <t t-name="card">
+                        <div class="oe_kanban_card oe_kanban_global_click">
+                            <div class="o_kanban_card_header">
+                                <div class="o_kanban_card_header_title">
+                                    <div class="o_primary">
+                                        <div class="d-flex align-items-center">
+                                            <span class="badge rounded-pill me-2" 
+                                                  t-attf-class="badge rounded-pill me-2 {{record.leaderboard_rank.raw_value == 1 ? 'bg-warning text-dark' : (record.leaderboard_rank.raw_value &lt;= 3 ? 'bg-info' : 'bg-secondary')}}">
+                                                #<field name="leaderboard_rank"/>
+                                            </span>
+                                            <strong><field name="name"/></strong>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="o_kanban_card_content">
+                                <div class="row">
+                                    <div class="col-6">
+                                        <div class="text-muted small">O2 Currency</div>
+                                        <div class="h5 mb-0"><strong><field name="money_O2"/> O2</strong></div>
+                                    </div>
+                                    <div class="col-6">
+                                        <div class="text-muted small">XP Points</div>
+                                        <div><strong><field name="sustainability_points"/> XP</strong></div>
+                                    </div>
+                                </div>
+                                <div class="row mt-2">
+                                    <div class="col-6">
+                                        <div class="text-muted small">Badge</div>
+                                        <div>
+                                            <span t-if="record.badge.value == 'gold'" class="badge rounded-pill bg-warning text-dark">Gold</span>
+                                            <span t-elif="record.badge.value == 'silver'" class="badge rounded-pill bg-secondary">Silver</span>
+                                            <span t-else="" class="badge rounded-pill bg-dark">Bronze</span>
+                                        </div>
+                                    </div>
+                                    <div class="col-6">
+                                        <div class="text-muted small">Activities</div>
+                                        <div><field name="activity_purchase_count"/> purchase(s)</div>
+                                    </div>
+                                </div>
+                                <div class="row mt-2" t-if="record.job_id.value">
+                                    <div class="col-12">
+                                        <div class="text-muted small">Position</div>
+                                        <div><field name="job_id"/></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </t>
+                </templates>
+            </kanban>
+        </field>
+    </record>
+
+    <!-- Leaderboard Action -->
+    <record id="action_view_leaderboard" model="ir.actions.act_window">
+        <field name="name">Leaderboard</field>
+        <field name="res_model">hr.employee</field>
+        <field name="view_mode">list,kanban</field>
+        <field name="view_id" ref="view_employee_leaderboard"/>
+        <field name="domain">[]</field>
+        <field name="context">{'search_default_active': 1}</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                Leaderboard
+            </p>
+            <p>
+                Employees are ranked by their O2 currency earned from sustainability activities.
+            </p>
+        </field>
+    </record>
+</odoo>
+

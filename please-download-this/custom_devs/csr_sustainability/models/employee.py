@@ -29,6 +29,34 @@ class HrEmployee(models.Model):
                 employee.badge = 'silver'
             else:
                 employee.badge = 'bronze'
+    
+    @api.depends('money_O2')
+    def _compute_leaderboard_rank(self):
+        """Compute the rank of employees based on O2 currency"""
+        # Get all employees with their O2 values
+        all_employees = self.env['hr.employee'].search([])
+        
+        # Create a list of (id, money_O2) tuples and sort by O2 descending
+        employee_o2_list = [(emp.id, emp.money_O2) for emp in all_employees]
+        employee_o2_list.sort(key=lambda x: x[1], reverse=True)
+        
+        # Create rank dictionary
+        rank_dict = {}
+        current_rank = 1
+        prev_o2 = None
+        
+        for emp_id, o2_value in employee_o2_list:
+            # If O2 is different from previous, update rank
+            if prev_o2 is not None and o2_value < prev_o2:
+                current_rank = len([(eid, o2) for eid, o2 in employee_o2_list if o2 > o2_value]) + 1
+            rank_dict[emp_id] = current_rank
+            prev_o2 = o2_value
+        
+        # Assign ranks to current records
+        for employee in self:
+            employee.leaderboard_rank = rank_dict.get(employee.id, 0)
+    
+    leaderboard_rank = fields.Integer(string='Rank', compute='_compute_leaderboard_rank', store=False, help='Rank in the leaderboard based on O2 currency')
 
 
 class HrEmployeePublic(models.Model):

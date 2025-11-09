@@ -12,12 +12,12 @@
               action="action_view_sustainability_projects"
               sequence="10"/>
 
-    <!-- Sustainability Tasks Menu -->
-    <menuitem id="menu_csr_tasks"
-              name="Tasks"
+    <!-- Leaderboard Menu -->
+    <menuitem id="menu_csr_leaderboard"
+              name="Leaderboard"
               parent="menu_csr_root"
-              action="action_view_sustainability_tasks"
-              sequence="20"/>
+              action="action_view_leaderboard"
+              sequence="25"/>
 
     <!-- Employee Sustainability Menu -->
     <menuitem id="menu_csr_employees"
